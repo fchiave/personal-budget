@@ -21,11 +21,8 @@ RUN chown -R $USER_UID:$USER_GID /workspace
 #COPY --chown=$USER_UID:$USER_GID requirements.txt .
 #RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the project files with proper ownership
-COPY --chown=$USER_UID:$USER_GID . .
-
 # Switch to the non-root user
 USER $USERNAME
 
-# Start a shell for interactive use
-CMD ["/bin/bash"]
+# Keep the container alive for dev container attachment
+CMD ["sleep", "infinity"]
