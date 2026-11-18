@@ -14,4 +14,4 @@ Local budget visualizer powered by Python and local LLMs (`qwen3:14b` via Ollama
 5. Python visualizes
 
 ## Notes & Setup
-See [work.md](./work.md) for dev container commands, Ollama setup, and build notes.
+See [work.md](./docs/work.md) for dev container commands, Ollama setup, and build notes.
