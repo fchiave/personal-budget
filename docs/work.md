@@ -70,5 +70,10 @@ Git repo created at `https://github.com/fchiave/personal-budget`.
 
 ---
 
+Running into container issues on start up. Going to manually take over container state. Stop the container with `docker stop budget-app-dev` and start with `docker start budget-app-dev`. Looking to add in a Makefile to simplify commands as container names vary per build.
+
+---
 Will want to add testing and linting integration. Potentially basic CI/CD
+
+For future CI/CD work, look to split Dockerfile into a multi-stage build for GitHub actions (base -> dev -> prod).
 ### 1. LLM parses and cleans input

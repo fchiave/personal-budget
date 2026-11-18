@@ -3,12 +3,8 @@ services:
     build:
       context: ..
       dockerfile: Dockerfile
-    image: budget-app:latest
-    container_name: budget-app-dev
-    restart: unless-stopped
     volumes:
       - ..:/workspace:cached
-    command: sleep infinity
     # Later, you can uncomment depends_on when you add a database:
     # depends_on:
     #   - db
