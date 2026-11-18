@@ -1,0 +1,7 @@
+{
+	"name": "Budget App Dev Container",
+	"dockerComposeFile": ["docker-compose.yml", "docker-compose.override.yml"],
+	"service": "app",
+	"workspaceFolder": "/workspace",
+  "remoteUser": "devuser"
+}

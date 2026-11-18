@@ -1,0 +1,29 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: budget-app:latest
+    container_name: budget-app-dev
+    restart: unless-stopped
+    volumes:
+      - ..:/workspace:cached
+    command: sleep infinity
+    # Later, you can uncomment depends_on when you add a database:
+    # depends_on:
+    #   - db
+
+  # Example future database service:
+  # db:
+  #   image: postgres:16-alpine
+  #   container_name: budget-db
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_USER: budget
+  #     POSTGRES_PASSWORD: budgetpassword
+  #     POSTGRES_DB: budget
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+
+# volumes:
+#   postgres-data:

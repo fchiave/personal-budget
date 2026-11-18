@@ -1,0 +1,4 @@
+.devcontainer/docker-compose.override.yml
+
+# Sensitive Financial Data
+data/

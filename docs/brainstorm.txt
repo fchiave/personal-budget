@@ -1,0 +1,45 @@
+# Project Idea: Personal CSV Budget Visualizer
+
+## Core Concept
+A lightweight, local-first budget visualizer powered by manual monthly credit card CSV exports. Instead of dealing with bank APIs, OAuth tokens, or third-party sync fees, you simply drop a monthly CSV file into a local folder and instantly generate clear visual breakdowns of where your money goes.
+
+---
+
+## How It Works (The Workflow)
+1. **Input:** Export a monthly transaction CSV from your credit card portal (`YYYY-MM.csv`).
+2. **Parse & Normalize:** A lightweight script reads the raw CSV, standardizes dates/amounts (merging separate Debit/Credit columns into a single signed number), and filters out credit card payments/transfers.
+3. **Auto-Categorize:** Match merchant descriptions against a simple local rules file (e.g., `JSON`, `YAML`, or `TOML`) to tag transactions (Groceries, Dining, Subscriptions, Travel, Uncategorized).
+4. **Visualize:** Render interactive or static charts showing monthly spending habits and trends over time.
+
+---
+
+## Core Visualizations to Include
+- **Category Breakdown (Donut / Bar Chart):** Total spend per category for the selected month, ranked from highest to lowest.
+- **Month-over-Month Trend (Stacked Bar / Line Chart):** Compare category spending across the last 3–12 months to spot lifestyle creep or seasonal spikes.
+- **Top Merchants & Recurring Charges:** Highlight the top 10 vendors by total spend and flag repeated monthly subscriptions.
+- **Budget vs. Actual Progress Bars:** Set simple monthly target caps per category and show green/yellow/red utilization bars.
+
+---
+
+## Key Design Principles
+- **Zero External Dependencies / Privacy First:** All financial data stays strictly on your local machine—no cloud databases or bank credentials required.
+- **Plain-Text Configuration:** Categorization rules and monthly budget targets live in human-readable config files you can edit directly in Vim.
+- **Idempotent Imports:** Deduplicate transactions using a hash of `(Date + Description + Amount)` so re-running or overlapping CSV exports never double-count expenses.
+
+---
+
+## Possible Tech Stacks (Pick One)
+- **Terminal / CLI:** Python + `rich` / `plotext` (renders bar charts and tables right inside your terminal).
+- **Local Web Dashboard:** Python (`Streamlit` or `Plotly Dash`) or single-file HTML/JS (`Chart.js` + `PapaParse` running completely offline in the browser).
+- **Static Report Generator:** Python (`pandas` + `matplotlib`) outputting a clean monthly summary image or HTML report.
+
+---
+
+## What This Project Teaches About Building with LLMs
+- **Probabilistic vs. Deterministic Split:** Use LLMs strictly for fuzzy semantic tasks (merchant cleanup, categorization) and keep all math, grouping, and state in deterministic Python code.
+- **Structured Outputs & Contracts:** Enforce strict JSON schemas (via API response schemas + `pydantic`) so AI output acts like a typed API rather than raw prose.
+- **Automated Verification (Guardrails):** Validate AI transformations programmatically (e.g., verifying row counts and dollar-sum checksums between raw CSV and clean JSON).
+- **Bounded Context & Batching:** Learn how chunking rows (e.g., 25–50 per call) prevents skipped items and instruction drift compared to massive single-shot dumps.
+- **Few-Shot & Enum Prompting:** Constrain classification outputs to a fixed category list with explicit edge-case examples (e.g., distinguishing credit card payments from refunds).
+- **Pipeline Caching:** Persist intermediate clean files so LLM inference runs once per ingestion rather than on every UI/chart render.
+
