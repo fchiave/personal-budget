@@ -23,10 +23,16 @@ Downloaded manually from Capital One portal per statement. See: "budget/data"
 
 ---
 
-At this stage, I have prepped for checkpoint 1 work. I localized qwen3:14b and am using that - thinking mode is good, still get good results without it. Still need to think big picture and prep folder/file architecture. Then set up the logistics - I want code in this project containerized. 
+### 0. Setup Project Infrastructure
+
+At this stage, I have prepped contents for checkpoint 1 work.
+I localized qwen3:14b and am using that - thinking mode is good, still get good results without it.
+Still need to think big picture and prep folder/file architecture.
+Then set up the logistics - I want code in this project containerized. 
 
 Container 2 (Dev Container) is built from a Dockerfile and requirements.txt (Python/SQL libraries) in this repo, bridged into Zed via .devcontainer/devcontainer.json with host networking so your code, terminal, and AI agent execute inside Docker while .gitignore excludes local datasets, caches, and .env secrets from Git.
 
+```
 budget/
 ├── data/
 │   └── capital_one.csv
@@ -38,8 +44,10 @@ budget/
 ├── requirements.txt
 └── .devcontainer/
     └── devcontainer.json
+```
 
-I ran `docker exec -it ollama-global bash` to jump into my LLM container and then `ollama pull qwen3:14b` to download qwen3. I can remove any model by running `ollama rm <model-name>` in the LLM container.
+I ran `docker exec -it ollama-global bash` to jump into my LLM container and then `ollama pull qwen3:14b` to download qwen3.
+I can remove any model by running `ollama rm <model-name>` in the LLM container.
 
 Need to refresh Zed to make sure it picks up the model after adding, click into AI window on left, press Ctrl+Alt+C, "LLM Providers" -> Configure, scroll down to "Ollama" -> Configure, click refresh where it says "Connected" on bottom right.
 
