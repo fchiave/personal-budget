@@ -58,10 +58,17 @@ When using Zed, the container will live even after closing the IDE. The containe
 
 If needed, you can manually start the container from the .devcontainer info with Ctrl+Shift+P to open the Command Pallete and run "Open dev container". 
 
+----
+
 Next step should be to get a git repo going. 
 
 Set up SSH auth to git account on local at ~/.ssh and with ~/.gitconfig. Looking to passthrough SSH_AUTH_SOCK (ssh agent) to the container to handle authentications. Currently doing through docker-compose.override.yml.
 
 Agent passthrough success, docker container recreated properly. Git is authenticating properly to github.com. Noticing now that the Docker container runs with the `root` user. This can cause file permission errors on the binded mount. Cleaner to give Docker it's own user. Dev container now set up with it's own user `devuser`. Git auth passthrough working as expected. Ready to git init in container.
 
+Git repo created at `https://github.com/fchiave/personal-budget`. 
+
+---
+
+Will want to add testing and linting integration. Potentially basic CI/CD
 ### 1. LLM parses and cleans input
