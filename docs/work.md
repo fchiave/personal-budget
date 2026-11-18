@@ -70,7 +70,7 @@ Git repo created at `https://github.com/fchiave/personal-budget`.
 
 ---
 
-Running into container issues on start up. Going to manually take over container state. Stop the container with `docker stop budget-app-dev` and start with `docker start budget-app-dev`. Looking to add in a Makefile to simplify commands as container names vary per build.
+Running into container issues on start up. Going to manually take over container state, this cleans up `.devcontainer/docker-compose.yml` and the containerization process as a whole. Makefile created to simplify commands as container names vary per build. Container state now handled through `make` commands: `make up`, `make down`, and `make status`. Stop container when done working with `make down`, start container to begin work with `make up`, check container status with `make status`. Looking into adding container+image cleaning into Makefile as well.
 
 ---
 Will want to add testing and linting integration. Potentially basic CI/CD
