@@ -10,8 +10,8 @@ Output - Properly formatted spending summary month by month
 ## Checkpoints
 
 0. CSVs with transaction info in and setup project infrastructure
-**We are here**
 1. Python parses input
+**We are here**
 2. LLM cleans fuzzy input
 3. LLM categorizes transactions
 4. Python verifies LLM work
@@ -105,7 +105,7 @@ Now manually managing container state instead, this cleans up the containerizati
 
 Makefile created to simplify commands as container names vary per build.
 Container state now handled through `make` commands: `make up`, `make down`, `make status`, `make clean`.
-Stop container when done working with `make down`, start container to begin work with `make up`, check container status with `make status`.
+Stop container when done working with `make down`, start existing container to begin work with `make up`, check container status with `make status`.
 
 When fundamental container changes are made, a new image and container need to be built.
 Tear down with `make clean` and use Zed's Command Palette (Ctrl+Shift+P) to run "projects: open dev container". 
