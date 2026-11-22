@@ -1,5 +1,5 @@
 # Use the official lightweight Python image
-FROM python:3.10-slim
+FROM python:3.12-slim
 
 # Install Git
 RUN apt-get update && apt-get install -y git \
@@ -18,8 +18,8 @@ WORKDIR /workspace
 RUN chown -R $USER_UID:$USER_GID /workspace
 
 # Copy and install Python dependencies first for better layer caching
-#COPY --chown=$USER_UID:$USER_GID requirements.txt .
-#RUN pip install --no-cache-dir -r requirements.txt
+COPY --chown=$USER_UID:$USER_GID requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Switch to the non-root user
 USER $USERNAME
