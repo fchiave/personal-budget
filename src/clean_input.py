@@ -1,78 +1,94 @@
-import os
-import pandas as pd
+"""Ingestion and validation for Capital One CSV transaction exports."""
 
-def process_capital_one_file(file_path: str) -> pd.DataFrame:
+import csv
+from collections.abc import Sequence
+from dataclasses import dataclass
+from datetime import date
+from decimal import Decimal, InvalidOperation
+from pathlib import Path
+
+# Not needed now, uncomment when using Polars to do large data analysis
+#import polars as pl
+
+__all__ = ["Transaction", "load_capital_one_csv"]
+
+# Expected CSV header names — column order does not matter
+REQUIRED_COLUMNS: frozenset[str] = frozenset({
+    "Transaction Date",
+    "Posted Date",
+    "Card No.",
+    "Description",
+    "Category",
+    "Debit",
+    "Credit",
+})
+
+@dataclass(frozen=True, slots=True)
+class Transaction:
+    """Normalized, immutable financial transaction record."""
+
+    transaction_date: date
+    posted_date: date
+    card_no: str
+    description: str
+    category: str
+    amount: Decimal
+
+def _parse_amount(debit_raw: str | None, credit_raw: str | None) -> Decimal:
+    """Convert raw Debit and Credit strings into a single signed Decimal amount.
+
+    Debits are represented as negative values and credits as positive values.
+    Raises ValueError if both fields are empty or whitespace-only.
     """
-    Function to process Capital One CSV files
+    debit_str = (debit_raw or "").strip()
+    credit_str = (credit_raw or "").strip()
 
-    Args:
-        file_path: Path to the CSV file to process
+    if not debit_str and not credit_str:
+        raise ValueError("Both Debit and Credit are empty")
 
-    Returns:
-        pd.Dataframe: Cleaned and validated transaction data
+    debit = Decimal(debit_str or "0")
+    credit = Decimal(credit_str or "0")
+    return credit - debit
 
-    Raises:
-        FileNotFoundError: If the file doesn't exist
-        ValueError: if the file has invalid format or content
-    """
+def load_capital_one_csv(path: Path) -> list[Transaction]:
+    """Load and validate a Capital One CSV export into Transaction models."""
+    transactions: list[Transaction] = []
 
-    # 1. Verify file path
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"CSV file not found at {file_path}")
+    with path.open(encoding="utf-8-sig", newline="") as f:
+        reader = csv.DictReader(f)
 
-    # 2. Load data with proper encoding
-    try:
-        df = pd.read_csv(
-            file_path,
-            encoding='utf-8',
-            on_bad_lines='skip'
-        )
-    except Exception as e:
-        raise ValueError(f"Error loading CSV: {e!s}")
+        # Validate columns
+        missing = REQUIRED_COLUMNS - set(reader.fieldnames or ())
+        if missing:
+            raise ValueError(f"Missing required columns: {sorted(missing)}")
 
-    # 3. Validate required columns
-    required_columns = [
-        "Transaction Date",
-        "Posted Date",
-        "Card No.",
-        "Description",
-        "Category",
-        "Debit",
-        "Credit",
-    ]
-    if not all(col in df.columns for col in required_columns):
-        missing = [col for col in required_columns if col not in df.columns]
-        raise ValueError(f"Missing required columns: {', '.join(missing)}")
+        for line_num, row in enumerate(reader, start=2):
+            try:
+                transactions.append(
+                    Transaction(
+                        transaction_date=date.fromisoformat((row["Transaction Date"] or "").strip()),
+                        posted_date=date.fromisoformat((row["Posted Date"] or "").strip()),
+                        card_no=(row["Card No."] or "").strip(),
+                        description=(row["Description"] or "").strip(),
+                        category=(row["Category"] or "").strip(),
+                        amount=_parse_amount(row["Debit"], row["Credit"]),
+                    )
+                )
+            except (ValueError, InvalidOperation) as exc:
+                raise ValueError(f"Line {line_num}: {exc}") from exc
 
-    # 4. Parse dates
-    for date_col in ["Transaction Date", "Posted Date"]:
-        df[date_col] = pd.to_datetime(df[date_col], errors="raise")
+    return transactions
 
-    # 5. Convert numeric columns
-    df["Debit"] = pd.to_numeric(df["Debit"], errors="coerce")
-    df["Credit"] = pd.to_numeric(df["Credit"], errors="coerce")
-
-    # 6. Compute signed amount
-    df["Amount"] = df.apply(
-        lambda row: -row["Debit"] if not pd.isna(row["Debit"]) else row["Credit"],
-        axis=1,
-    )
-
-    # 7. Drop original Debit/Credit columns
-    df = df.drop(columns=["Debit", "Credit"])
-
-    # 8. Reorder columns
-    df = df[[
-        "Transaction Date",
-        "Posted Date",
-        "Card No.",
-        "Description",
-        "Category",
-        "Amount",
-    ]]
-
-    # 9. Ensure no missing critical data
-    if df["Amount"].isna().any():
-        raise ValueError("Amount column contains NaN values after processing.")
-
-    return df
+# def to_dataframe(transactions: Sequence[Transaction]) -> pl.DataFrame:
+#     """Convert validated transactions into a Polars DataFrame for reporting."""
+#     return pl.DataFrame(
+#         transactions,
+#         schema={
+#             "transaction_date": pl.Date,
+#             "posted_date": pl.Date,
+#             "card_no": pl.String,
+#             "description": pl.String,
+#             "category": pl.String,
+#             "amount": pl.Decimal(scale=2),
+#         },
+#     )
