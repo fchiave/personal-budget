@@ -118,5 +118,39 @@ Potentially basic CI/CD
 For future CI/CD work, look to split Dockerfile into a multi-stage build for GitHub actions (base -> dev -> prod).
 
 ---
+### Dev Container Build Management
 
-### 1. LLM parses and cleans input
+Looking to swap dependency management from `pip` + `requirements.txt` over to `uv` and `pyproject.toml`.
+This allows for separation of dependencies between runtime (currently none) and dev tooling (testing, linting).
+
+Work to be started next time.
+
+### 1. Python parses input
+
+Worked on this today.
+Initially, I was going to use Pandas but kept running into typing warnings with indexing.
+I want to keep things clean so I decided to transition over into a thinner, core python solution: dataclasses.
+
+Data is read in from csvs and each entry is converted to a `Transaction`, seen below.
+```python
+@dataclass(frozen=True, slots=True)
+class Transaction:
+    """Normalized, immutable financial transaction record."""
+
+    transaction_date: date
+    posted_date: date
+    card_no: str
+    description: str
+    category: str
+    amount: Decimal
+```
+Currently, the data is ingested and creates a `list[Transactions]' to be used in the data pipeline.
+In the future, I will have a database that stores these transactions.
+This way, I will separate my pipeline, having a flow to ingest data into the database, handling distinct transactions and protecting my history, and a different pipeline to inspect/report the data.
+
+For future reporting and dashboards, I plan to convert `Transaction` records into ***Polars*** Dataframes, that code is commented out for now.
+I removed pandas from the container as well with this change.
+
+---
+
+Before continuing with feature development, look to [Dev Container Build Management](#dev-container-build-management)
