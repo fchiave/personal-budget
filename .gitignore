@@ -2,3 +2,7 @@
 
 # Sensitive Financial Data
 data/
+
+# Python runtime
+__pycache__/
+*.py[cod]
