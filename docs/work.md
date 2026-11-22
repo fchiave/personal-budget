@@ -144,11 +144,29 @@ class Transaction:
     category: str
     amount: Decimal
 ```
-Currently, the data is ingested and creates a `list[Transactions]' to be used in the data pipeline.
+Currently, the data is ingested and creates a `list[Transactions]` to be used in the data pipeline.
 In the future, I will have a database that stores these transactions.
 This way, I will separate my pipeline, having a flow to ingest data into the database, handling distinct transactions and protecting my history, and a different pipeline to inspect/report the data.
 
-For future reporting and dashboards, I plan to convert `Transaction` records into ***Polars*** Dataframes, that code is commented out for now.
+For future reporting and dashboards, I plan to convert `Transaction` records into ***Polars*** Dataframes, that code is saved here for later reference.
+```python
+# Add import to top of file
+from collections.abc import Sequence
+
+def to_dataframe(transactions: Sequence[Transaction]) -> pl.DataFrame:
+    """Convert validated transactions into a Polars DataFrame for reporting."""
+    return pl.DataFrame(
+        transactions,
+        schema={
+            "transaction_date": pl.Date,
+            "posted_date": pl.Date,
+            "card_no": pl.String,
+            "description": pl.String,
+            "category": pl.String,
+            "amount": pl.Decimal(scale=2),
+        },
+    )
+```
 I removed pandas from the container as well with this change.
 
 ---

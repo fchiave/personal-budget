@@ -1,7 +1,6 @@
 """Ingestion and validation for Capital One CSV transaction exports."""
 
 import csv
-from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal, InvalidOperation
@@ -78,17 +77,3 @@ def load_capital_one_csv(path: Path) -> list[Transaction]:
                 raise ValueError(f"Line {line_num}: {exc}") from exc
 
     return transactions
-
-# def to_dataframe(transactions: Sequence[Transaction]) -> pl.DataFrame:
-#     """Convert validated transactions into a Polars DataFrame for reporting."""
-#     return pl.DataFrame(
-#         transactions,
-#         schema={
-#             "transaction_date": pl.Date,
-#             "posted_date": pl.Date,
-#             "card_no": pl.String,
-#             "description": pl.String,
-#             "category": pl.String,
-#             "amount": pl.Decimal(scale=2),
-#         },
-#     )
