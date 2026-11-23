@@ -73,9 +73,7 @@ def load_capital_one_csv(path: Path) -> list[Transaction]:
                         transaction_date=date.fromisoformat(
                             (row["Transaction Date"] or "").strip()
                         ),
-                        posted_date=date.fromisoformat(
-                            (row["Posted Date"] or "").strip()
-                        ),
+                        posted_date=date.fromisoformat((row["Posted Date"] or "").strip()),
                         card_no=(row["Card No."] or "").strip(),
                         description=(row["Description"] or "").strip(),
                         category=(row["Category"] or "").strip(),

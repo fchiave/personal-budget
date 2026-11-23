@@ -1,7 +1,8 @@
 COMPOSE := docker compose -p budget_devcontainer -f .devcontainer/docker-compose.yml -f .devcontainer/docker-compose.override.yml
 
-.PHONY: up down status clean
+.PHONY: up down status clean test lint format check
 
+# - - - Container Lifecycle Commands - - -
 # Wake up the existing dev container created by Zed
 up:
 	$(COMPOSE) start
@@ -18,3 +19,21 @@ status:
 clean:
 	$(COMPOSE) down --rmi local --remove-orphans
 	docker image prune -f
+
+# - - - Code Quality & Testing Commands - - -
+# Run unit tests inside the dev container
+test:
+	$(COMPOSE) exec app pytest
+
+# Check linting and formatting without modifying files
+lint:
+	$(COMPOSE) exec app ruff check .
+	$(COMPOSE) exec app ruff format --check .
+
+# Auto-fix lint issues and format Code
+format:
+	$(COMPOSE) exec app ruff check --fix .
+	$(COMPOSE) exec app ruff format .
+
+# Run full quality gate before comitting
+check: lint test
