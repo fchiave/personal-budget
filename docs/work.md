@@ -178,6 +178,8 @@ CI/CD implemented using GitHub Actions, defined in `.github/workflows/ci.yml`.
 The "CI" workflow pulls the latest project code, sets up uv, and runs the linter and testing suite.
 This workflow runs on every PR/push to main/dev.
 
+---
+
 ### Git Workflow
 
 1. **Branch off `dev`:** Create a new branch prefixed with `feat/` (new functionality) or `chore/` (tooling, dependencies, maintenance) from an up-to-date `dev` branch (`git checkout -b feat/<name>`).
@@ -185,3 +187,16 @@ This workflow runs on every PR/push to main/dev.
 3. **Open a PR into `dev`:** Push the branch and open a Pull Request targeting `dev`. GitHub Actions will automatically run the CI check suite (`uv sync --locked`, `ruff`, and `pytest`).
 4. **Squash and merge:** Once CI is green, squash and merge the PR into `dev` on GitHub.
 5. **Clean up locally:** Run `make sync` to switch back to `dev`, pull the squashed commit, prune stale remote branches, and delete the merged local branch.
+
+---
+
+### 2. Store & deduplicate transactions in SQLite
+
+Decided on **SQLite** (`data/ledger.db`) over a separate PostgreSQL Docker service.
+Since this is a single-user local tool, SQLite solves all my actual needs without extra container complexity and keeps financial data private. 
+As the code is service-agnostic, I can hook in a PosgreSQL Docker service in the future if needed.
+
+Key design notes for database implementation (`feat/sqlite-ledger`):
+- **Same-day deduplication:** Compute a SHA-256 `fingerprint` from raw bank fields plus a per-file occurrence counter so identical same-day purchases (e.g., two coffees at the same spot) are both preserved, while re-importing overlapping monthly statements is safely skipped via `INSERT OR IGNORE`.
+- **Exact currency storage:** Store `amount_cents` as `INTEGER` (`int(amount * 100)`) instead of `REAL` to prevent floating-point rounding drift.
+- **LLM-ready schema:** Keep raw bank fields (`raw_description`, `bank_category`) alongside nullable enrichment columns (`clean_merchant`, `clean_category`, `status`) so `qwen3:14b` only processes newly inserted rows and can be re-run safely if prompts change.
