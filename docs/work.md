@@ -12,10 +12,11 @@ Output - Properly formatted spending summary month by month
 0. CSVs with transaction info in and setup project infrastructure
 1. Python parses input
 **We are here**
-2. LLM cleans fuzzy input
-3. LLM categorizes transactions
-4. Python verifies LLM work
-5. Python visualizes
+2. Store & deduplicate transactions in SQLite
+3. LLM cleans fuzzy input
+4. LLM categorizes transactions
+5. Python verifies LLM work
+6. Python visualizes
 
 ### 0. CSVs with transaction info in
 
@@ -112,20 +113,6 @@ Tear down with `make clean` and use Zed's Command Palette (Ctrl+Shift+P) to run 
 
 ---
 
-Will want to add testing and linting integration.
-Potentially basic CI/CD
-
-For future CI/CD work, look to split Dockerfile into a multi-stage build for GitHub actions (base -> dev -> prod).
-
----
-### Dev Container Build Management
-
-Looking to swap dependency management from `pip` + `requirements.txt` over to `uv` and `pyproject.toml`.
-This allows for separation of dependencies between runtime (currently none) and dev tooling (testing, linting).
-
-Dependencies swapped in, container is now built using `uv`, dependencies are handled in a virtual environment stored in `devuser`.
-Dependencies are defined in pyproject.toml.
-
 ### 1. Python parses input
 
 Worked on this today.
@@ -173,4 +160,28 @@ I removed pandas from the container as well with this change.
 
 ---
 
-Before continuing with feature development, look to [Dev Container Build Management](#dev-container-build-management)
+### Dev Container Build Management
+
+Looking to swap dependency management from `pip` + `requirements.txt` over to `uv` and `pyproject.toml`.
+This allows for separation of dependencies between runtime (currently none) and dev tooling (testing, linting).
+
+Dependencies swapped in, container is now built using `uv`, dependencies are handled in a virtual environment stored in `devuser`.
+Dependencies are defined in pyproject.toml.
+
+Linting and testing shortcuts are defined in Makefile now.
+Run `make test` to run pytest test suite in the dev container.
+Run `make lint` to check linting without modifying files.
+Run `make format` to auto-fix lint issues and format code.
+Run `make check` before committing to run full quality gate (runs lint and test).
+
+CI/CD implemented using GitHub Actions, defined in `.github/workflows/ci.yml`.
+The "CI" workflow pulls the latest project code, sets up uv, and runs the linter and testing suite.
+This workflow runs on every PR/push to main/dev.
+
+### Git Workflow
+
+1. **Branch off `dev`:** Create a new branch prefixed with `feat/` (new functionality) or `chore/` (tooling, dependencies, maintenance) from an up-to-date `dev` branch (`git checkout -b feat/<name>`).
+2. **Develop & verify locally:** Build the feature and run `make check` inside the container to verify `ruff` linting/formatting and `pytest` pass.
+3. **Open a PR into `dev`:** Push the branch and open a Pull Request targeting `dev`. GitHub Actions will automatically run the CI check suite (`uv sync --locked`, `ruff`, and `pytest`).
+4. **Squash and merge:** Once CI is green, squash and merge the PR into `dev` on GitHub.
+5. **Clean up locally:** Run `make sync` to switch back to `dev`, pull the squashed commit, prune stale remote branches, and delete the merged local branch.
