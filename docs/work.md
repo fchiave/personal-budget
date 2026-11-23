@@ -123,7 +123,8 @@ For future CI/CD work, look to split Dockerfile into a multi-stage build for Git
 Looking to swap dependency management from `pip` + `requirements.txt` over to `uv` and `pyproject.toml`.
 This allows for separation of dependencies between runtime (currently none) and dev tooling (testing, linting).
 
-Work to be started next time.
+Dependencies swapped in, container is now built using `uv`, dependencies are handled in a virtual environment stored in `devuser`.
+Dependencies are defined in pyproject.toml.
 
 ### 1. Python parses input
 
@@ -152,6 +153,7 @@ For future reporting and dashboards, I plan to convert `Transaction` records int
 ```python
 # Add import to top of file
 from collections.abc import Sequence
+
 
 def to_dataframe(transactions: Sequence[Transaction]) -> pl.DataFrame:
     """Convert validated transactions into a Polars DataFrame for reporting."""
