@@ -95,6 +95,7 @@ def test_empty_debit_and_credit_raises(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match=r"Line 2: Both Debit and Credit are empty"):
         load_capital_one_csv(csv_path)
 
+
 def test_non_numeric_amount_raises(tmp_path: Path) -> None:
     csv_path = write_sample_csv(
         tmp_path,
