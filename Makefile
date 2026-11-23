@@ -1,6 +1,6 @@
 COMPOSE := docker compose -p budget_devcontainer -f .devcontainer/docker-compose.yml -f .devcontainer/docker-compose.override.yml
 
-.PHONY: up down status clean test lint format check
+.PHONY: up down status clean test lint format check sync
 
 # - - - Container Lifecycle Commands - - -
 # Wake up the existing dev container created by Zed
@@ -37,3 +37,11 @@ format:
 
 # Run full quality gate before comitting
 check: lint test
+
+# - - - Git Workflow Commands - - -
+# Switch to dev, pull latest changes, prune stale remotes, and delete merged local branches
+sync:
+	git checkout dev
+	git pull --ff-only origin dev
+	git fetch --prune
+	git branch -vv | awk '/: gone]/ && $$1 !~ /^(\*|main|dev)$$/ {print $$1}' | xargs -r git branch -D
