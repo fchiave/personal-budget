@@ -34,4 +34,5 @@ Local budget visualizer powered by Python and local LLMs (`qwen3:14b` via Ollama
 ```
 
 ## Notes & Setup
+- See [docs/roadmap.md](./docs/roadmap.md) for upcoming MVP milestones (`v0.2.0` SQLite ledger, local LLM categorization) and post-MVP analytics ideas.
 See [docs/work.md](./docs/work.md) for detailed build logs, Ollama setup, and Git workflow notes.
