@@ -7,20 +7,23 @@ from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 # Not needed now, uncomment when using Polars to do large data analysis
-#import polars as pl
+# import polars as pl
 
 __all__ = ["Transaction", "load_capital_one_csv"]
 
 # Expected CSV header names — column order does not matter
-REQUIRED_COLUMNS: frozenset[str] = frozenset({
-    "Transaction Date",
-    "Posted Date",
-    "Card No.",
-    "Description",
-    "Category",
-    "Debit",
-    "Credit",
-})
+REQUIRED_COLUMNS: frozenset[str] = frozenset(
+    {
+        "Transaction Date",
+        "Posted Date",
+        "Card No.",
+        "Description",
+        "Category",
+        "Debit",
+        "Credit",
+    }
+)
+
 
 @dataclass(frozen=True, slots=True)
 class Transaction:
@@ -32,6 +35,7 @@ class Transaction:
     description: str
     category: str
     amount: Decimal
+
 
 def _parse_amount(debit_raw: str | None, credit_raw: str | None) -> Decimal:
     """Convert raw Debit and Credit strings into a single signed Decimal amount.
@@ -49,6 +53,7 @@ def _parse_amount(debit_raw: str | None, credit_raw: str | None) -> Decimal:
     credit = Decimal(credit_str or "0")
     return credit - debit
 
+
 def load_capital_one_csv(path: Path) -> list[Transaction]:
     """Load and validate a Capital One CSV export into Transaction models."""
     transactions: list[Transaction] = []
@@ -65,7 +70,9 @@ def load_capital_one_csv(path: Path) -> list[Transaction]:
             try:
                 transactions.append(
                     Transaction(
-                        transaction_date=date.fromisoformat((row["Transaction Date"] or "").strip()),
+                        transaction_date=date.fromisoformat(
+                            (row["Transaction Date"] or "").strip()
+                        ),
                         posted_date=date.fromisoformat((row["Posted Date"] or "").strip()),
                         card_no=(row["Card No."] or "").strip(),
                         description=(row["Description"] or "").strip(),
